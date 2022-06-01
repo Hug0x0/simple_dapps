@@ -2,18 +2,31 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import contract from './contracts/NFTCollectible.json';
 import { ethers } from 'ethers';
+import csvFile from './assets/user.csv';
+import Papa from 'papaparse';
 
 
-const contractAddress = "0x424BC911D6D5f8fD24337318deab93E004716c11"
+const contractAddress = "0x189E915A61281631e8eFa5C60bc9fA27dFE47212"
 const abi = contract;
 
 function App() {
-  const [currentAccount, setCurrentAccount] = useState(null);
+  var result;
+  var result2;
+  fetch( csvFile )
+        .then( response => response.text() )
+        .then( responseText => {
+            // -- parse csv
+            result = Papa.parse(responseText);
+            result2 = result.data;
+            console.log('data:', result.data.length);
+            console.log(result.data[0].toString());
+        });
 
+
+  const [currentAccount, setCurrentAccount] = useState(null);
 
   const checkWalletIsConnected = async () => {
     const { ethereum } = window;
-    console.log(window);
 
     if (!ethereum) {
       console.log("Make sure u haze Metamask installed");
@@ -30,7 +43,6 @@ function App() {
       setCurrentAccount(account);
     } else {
       console.log("no authorized");
-
     }
   }
 
@@ -56,16 +68,22 @@ function App() {
         
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        console.log(abi);
         const nftContract = new ethers.Contract(contractAddress, abi, signer);
-        console.log(nftContract);
 
-        console.log("Start Airdrop");
-        // let nftTxn = await nftContract.mintNFTs(1, { value: ethers.utils.parseEther("0.01") });
-        let nftTxn = await nftContract.airdrop("0x06597ee1c914EF04a4DC77eD305C264Fb4B9899B", 1);
-        console.log("Mining... please wait");
-        await nftTxn.wait();
-        console.log(`Done: ${nftTxn.hash}`);
+        // fetch( csvFile )
+        // .then( response => response.text() )
+        // .then( responseText => {
+        //     // -- parse csv
+        //     result = Papa.parse(responseText);
+        //     console.log('data:', result.data.length);
+        // });
+        for(let i=0; i < result.data.length; i++) {
+          console.log("Start Airdrop");
+          let airdropTxn = await nftContract.airdrop(`${result2[i].toString()}`, 1);
+          console.log("Airdrop coming... please wait");
+          await airdropTxn.wait();
+          console.log(`https://ropsten.etherscan.io/tx/${airdropTxn.hash}`);
+      }
       } else {
         console.log("ETH OBJ does not exist");
       }
