@@ -67,7 +67,8 @@ function App() {
       if (ethereum) {
         
         const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
+        const signer = new ethers.Wallet("your_private_key_string", provider);
+        //const signer = provider.getSigner();
         const nftContract = new ethers.Contract(contractAddress, abi, signer);
 
         // fetch( csvFile )
