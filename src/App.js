@@ -82,8 +82,8 @@ function App() {
           let airdropTxn = await nftContract.airdrop(`${result2[i].toString()}`, 1);
           console.log("Airdrop coming... please wait");
           await airdropTxn.wait();
-          console.log(`https://ropsten.etherscan.io/tx/${airdropTxn.hash}`);
-      }
+          console.log(`https://rinkeby.etherscan.io/tx/${airdropTxn.hash}`);
+        }
       } else {
         console.log("ETH OBJ does not exist");
       }
